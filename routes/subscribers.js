@@ -1,6 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const Subscriber = require('../models/subscriber') 
+const subscribeController = require('../controllers/subscribeController')
 
 //subscribing
 
@@ -28,8 +29,10 @@ router.post('/', async (req, res) => {
     }
 })
 
-router.post('/:topic', (req, res) => {
-    const topic = req.params.topic;
-})
+// router.post('/:topic', (req, res) => {
+//     const topic = req.params.topic;
+// })
+
+router.post('/:topic', subscribeController.send)
 
 module.exports = router

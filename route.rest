@@ -9,3 +9,27 @@ Content-Type: application/json
     "url": "http://tesets",
     "subscriberToTopic": "topic1"
 }
+
+###
+
+POST http://localhost:9000/subscribe/madeInLagosxx
+Content-Type: application/json
+
+{
+    "url": "http://api.madeInLagos.com"
+}
+
+
+###
+
+POST http://localhost:8000/publish/madeInLagosxx
+Content-Type: application/json
+
+{
+    "ada": {
+        "status": true,
+        "items": [
+            "fish", "books"
+        ]
+    }
+}
