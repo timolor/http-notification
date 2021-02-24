@@ -14,6 +14,6 @@ exports.publish = async (topic, data) => {
     } catch (e) {
         // Log Errors
         console.error(e)
-        throw Error('Error while subscribing to topic, Reason: ' + e)
+        throw Error('Error while publishing topic, Reason: ' + e)
     }
 }

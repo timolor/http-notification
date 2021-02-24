@@ -4,19 +4,10 @@ const express = require("express");
 const publisher = express();
 const subscriber = express();
 const mongoose = require("mongoose");
-const redis = require("redis");
 
-
-// const redisClient = redis.createClient({
-//     host: "us1-alive-mayfly-32104.upstash.io",
-//     port: process.env.REDIS_PORT || "6379",
-//     password: process.env.REDIS_PASSWORD || "",
-// });
-// redisClient.on("error",  (err)  => {
-//     console.error(err);
-// });
-
-// redisClient.once('connect', ()=> console.log('Connected to Redis'))
+const subscribersRouter = require("./routes/subscribers");
+const publisherRouter = require("./routes/publisher");
+const echoRouter = require("./routes/echo");
 
 mongoose
     .connect(process.env.DATABASE_URI, {
@@ -29,11 +20,9 @@ mongoose
 publisher.use(express.json());
 subscriber.use(express.json());
 
-const subscribersRouter = require("./routes/subscribers");
-const publisherRouter = require("./routes/publisher");
-
 subscriber.use("/subscribe", subscribersRouter);
 publisher.use("/publish", publisherRouter);
+subscriber.use("/", echoRouter)
 
 publisher.listen(process.env.PUBLISHER_PORT || 8000, () => {
     console.log("Publisher Server has started");
