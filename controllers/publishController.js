@@ -1,36 +1,26 @@
 const AppError = require("../utils/appError");
+const PublishService = require('../services/publishService')
+const BrokerService = require('../services/brokerService')
+const { PROCESSING_ERROR } = require('../utils/Constants')
 
 exports.send = async (req, res, next) => {
-    try {
-      const topic = req.params.topic;
+  try {
+    const topic = req.params.topic;
+    const data = req.body;
 
-      const data  = req.body;
-  
-      // 1) check if email and password exist
-      // if (!email || !password) {
-      //   return next(
-      //     new AppError(404, "fail", "Please provide email or password"),
-      //     req,
-      //     res,
-      //     next,
-      //   );
-      // }
-      
-      res.status(200).json({
-        topic,
-        data
-      })
-      
-  
-      // res.status(200).json({
-      //   status: "success",
-      //   token,
-      //   data: {
-      //     user,
-      //   },
-      // });
-    } catch (err) {
-      next(err);
+    let publish = await PublishService.publish(topic, data);
+
+    if (publish) {
+
+      BrokerService.process(topic)
+                    .then(()=> console.log('broker service finished'))
+                    .catch((error)=> console.error(error.message))
+
+      res.status(200).json({ topic, data })
     }
-  };
-  
+    res.status(500).json({ message: PROCESSING_ERROR })
+
+  } catch (err) {
+    res.status(500).json({ message: err.message })
+  }
+};
