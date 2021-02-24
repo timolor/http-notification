@@ -7,18 +7,16 @@ const mongoose = require("mongoose");
 const redis = require("redis");
 
 
-const redisClient = redis.createClient({
-    host: "us1-alive-mayfly-32104.upstash.io",
-    port: process.env.REDIS_PORT || "6379",
-    password: process.env.REDIS_PASSWORD || "",
-});
-redisClient.on("error",  (err)  => {
-    console.error(err);
-});
+// const redisClient = redis.createClient({
+//     host: "us1-alive-mayfly-32104.upstash.io",
+//     port: process.env.REDIS_PORT || "6379",
+//     password: process.env.REDIS_PASSWORD || "",
+// });
+// redisClient.on("error",  (err)  => {
+//     console.error(err);
+// });
 
-redisClient.once('connect', ()=> console.log('Connected to Redis'))
-
-//redisClient.set("foo", "bar");
+// redisClient.once('connect', ()=> console.log('Connected to Redis'))
 
 mongoose
     .connect(process.env.DATABASE_URI, {

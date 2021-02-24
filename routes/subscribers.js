@@ -1,38 +1,42 @@
 const express = require('express')
 const router = express.Router()
-const Subscriber = require('../models/subscriber') 
+const Subscribe = require('../models/subscribe') 
 const subscribeController = require('../controllers/subscribeController')
-
-//subscribing
 
 router.get('/', async (req, res) => {
     try {
-        const subscribers = await Subscriber.find();
+        const subscribers = await Subscribe.find();
         res.send(subscribers)
     } catch (error) {
+        console.error(error)
         res.status(500).json(error)
     }
 })
 
-router.post('/', async (req, res) => {
+router.post('/:topic', subscribeController.send)
 
-    const subscriber = new Subscriber({
-        url: req.body.url,
-        subscriberToTopic: req.body.subscriberToTopic
-    })
-
+router.get('/receive/async', async (req, res) => {
     try {
-       const newSubscriber = await subscriber.save()
-       res.status(201).json(newSubscriber)
+        console.log('Called async test')
+        const { data } = req.body
+        console.log('Before calling stalled function')
+        stall(3000)
+            .then(()=> console.log('Stall function has finished'))
+        
+        console.log('Before sending response')
+        res.send(data)
+        console.log('After sending response')
     } catch (error) {
-        res.status(400).json({message: error.message})
+        console.error(error)
+        res.status(500).json(error)
     }
 })
 
-// router.post('/:topic', (req, res) => {
-//     const topic = req.params.topic;
-// })
+router.post('/receive/topic', subscribeController.receive)
 
-router.post('/:topic', subscribeController.send)
+
+let stall = async (stallTime = 3000) => {
+    await new Promise(resolve => setTimeout(resolve, stallTime));
+}
 
 module.exports = router

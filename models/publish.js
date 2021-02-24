@@ -1,19 +1,19 @@
 const mongoose = require('mongoose')
 
-const subscriberSchema = new mongoose.Schema({
-    url: {
+const publishSchema = new mongoose.Schema({
+    topic:{
         type: String,
         required: true
     },
-    subscriberToTopic:{
-        type: String,
+    data: {
+        type: Object,
         required: true
     },
-    subscribeDate:{
+    publishDate:{
         type: Date,
         required: true,
         default: Date.now()
     }
 })
 
-module.exports = mongoose.model('Subscriber', subscriberSchema)
+module.exports = mongoose.model('Publish', publishSchema)
