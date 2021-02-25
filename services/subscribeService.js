@@ -1,12 +1,12 @@
 let Subscribe = require('../models/subscribe')
-const { DUPLICATE_SUBSCRIPTION } = require('../utils/Constants')
+const { DUPLICATE_SUBSCRIPTION, SUBSCRIBE_ERROR, INVALID_TOPIC } = require('../utils/Constants')
 const { isTopicValid } = require('../utils/Validator')
 
 exports.subscribe = async (topic, url) => {
 
     try {
         if (!isTopicValid(topic))
-            throw Error('Invalid topic')
+            throw Error(INVALID_TOPIC)
 
         // log subscription if unique
         let subscription = await Subscribe.find({ url, topic })
@@ -18,8 +18,7 @@ exports.subscribe = async (topic, url) => {
         return await subscriber.save()
 
     } catch (e) {
-        // Log Errors
         console.error(e)
-        throw Error('Error while subscribing to topic, Reason: ' + e)
+        throw Error(SUBSCRIBE_ERROR + e)
     }
 }

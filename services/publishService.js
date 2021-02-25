@@ -1,19 +1,18 @@
 var Publish = require('../models/publish')
-const { DUPLICATE_SUBSCRIPTION } = require('../utils/Constants')
+const { PUBLISH_ERROR, INVALID_TOPIC } = require('../utils/Constants')
 const { isTopicValid } = require('../utils/Validator')
 
 exports.publish = async (topic, data) => {
 
     try {
         if (!isTopicValid())
-            throw Error('Invalid topic')
+            throw Error(INVALID_TOPIC)
 
         const publishedTopic = new Publish({ topic, data })
         return await publishedTopic.save()
 
     } catch (e) {
-        // Log Errors
         console.error(e)
-        throw Error('Error while publishing topic, Reason: ' + e)
+        throw Error(PUBLISH_ERROR + e)
     }
 }

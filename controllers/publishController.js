@@ -1,7 +1,7 @@
 const AppError = require("../utils/appError");
 const PublishService = require("../services/publishService");
 const BrokerService = require("../services/brokerService");
-const { PROCESSING_ERROR } = require("../utils/Constants");
+const { PROCESSING_ERROR, BROKER_SUCCESSFUL } = require("../utils/Constants");
 
 exports.send = async (req, res, next) => {
   try {
@@ -12,12 +12,12 @@ exports.send = async (req, res, next) => {
 
     if (publish) {
       BrokerService.process(topic)
-        .then(() => console.log("broker service finished"))
-        .catch((error) => console.error(error.message));
-
+        .then(() => console.log(BROKER_SUCCESSFUL))
+      
       res.status(200).json({ topic, data });
+    }else{
+      res.status(500).json({ message: PROCESSING_ERROR });
     }
-    res.status(500).json({ message: PROCESSING_ERROR });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

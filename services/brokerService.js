@@ -2,12 +2,11 @@ require("dotenv").config();
 
 const Publish = require("../models/publish");
 const Subscribe = require("../models/subscribe");
-const fetch = require("node-fetch");
+const axios = require('axios');
+const { DISPATCH_ERROR } = require("../utils/Constants");
 
 exports.process = async (topic) => {
     try {
-        console.log("::IN BROKER SERVICE::")
-        let response = false;
         const recordSize = Number(process.env.RECORD_FETCH_SIZE || 10);
 
         //fetch unpublished records
@@ -15,57 +14,48 @@ exports.process = async (topic) => {
             .sort({ publishDate: 1 })
             .limit(recordSize);
 
-        console.log("::PUBLISHED REQUESTS::")
-        console.log(publishedRequestForTopic)
-
         //fetch all subscribers top this topic
         let subscribers = await Subscribe.find({ topic }).sort({
             subscribeDate: 1,
         });
 
-        console.log("::SUBSCRIBERS::")
-        console.log(subscribers)
-
-        await Promise.all(
+        //loop through request for selected topic
+        //send to subscribers of that topic
+        await Promise.allSettled(
             publishedRequestForTopic.map(async (publishedRequest, index) => {
-                console.log(index + " ::LOOPING ALL TOPICS:: ")
-                await Promise.all(
+
+                await Promise.allSettled(
                     subscribers.map(async (subscriber, index) => {
-                        console.log(index + " ::LOOPING ALL SUBSCRIBERS")
-                        response = sendRequestToClients(publishedRequest, subscriber);
+                        const postResponse = sendRequestToClient(publishedRequest, subscriber)
+                        postResponse.then(async (result) => {
+                            if (result.status === 200) {
+                                await Publish.deleteOne({ _id: publishedRequest._id });
+                            }
+
+                        }).catch(err => console.log(err))
+
                     })
-                );
-                console.log(" ::RESPONSE FROM SEND TO CLIENTS: " + JSON.stringify(response))
-                //remove message from storage if at least on subscriber has acknowledged
-                if (response) {
-                    console.log(" ::DELETING PUBLISHED REQUEST:: ")
-                    await Publish.deleteOne({ _id: publishedRequest._id });
-                }
+                )
 
             })
-        );
+        )
     } catch (e) {
-        // Log Errors
-        console.log("::AN EXCEPTION OCCURRED::")
-        console.error(e);
-        throw Error("Error while dispatching topic, Reason: " + e);
+        throw Error(DISPATCH_ERROR + e);
     }
 };
 
-sendRequestToClients = async (publishedRequest, subscriber) => {
-    console.log("::SENDING REQUEST TO CLIENTS::")
-    let returnValue = false;
-    let response = await fetch(subscriber.url, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json;charset=utf-8",
-        },
-        body: JSON.stringify(publishedRequest.data),
-    });
-    console.log("GOT RESPONSE:: ")
-    console.log(JSON.stringify(response))
-    if (response.ok) {
-        returnValue = true;
-    }
-    return returnValue;
+
+
+sendRequestToClient = async (publishedRequest, subscriber) => {
+    return new Promise((resolve, reject) => {
+        axios.post(subscriber.url, {
+            data: publishedRequest.data
+        })
+        .then((response) => {
+            resolve(response)
+        })
+        .catch(function (error) {
+            reject(error)
+        });
+    })
 };

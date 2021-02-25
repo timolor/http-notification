@@ -17,11 +17,6 @@ exports.send = async (req, res, next) => {
 
     } catch (err) {
         res.status(500).json({ message: err.message })
-        // return next( new AppError(500, "failed", err.message), 
-        //     req,
-        //     res,
-        //     next
-        // );
     }
 };
 

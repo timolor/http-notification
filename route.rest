@@ -1,14 +1,5 @@
 GET http://localhost:9000/subscribe
 
-###
-
-POST http://localhost:3000/subscribers
-Content-Type: application/json
-
-{
-    "url": "http://tesets",
-    "subscriberToTopic": "topic1"
-}
 
 ###
 
@@ -26,40 +17,9 @@ POST http://localhost:8000/publish/topic1
 Content-Type: application/json
 
 {
-    "ada": {
-        "status": true,
-        "items": [
-            "fish", "books"
-        ]
-    }
-}
-
-###
-
-POST http://localhost:8000/publish/topic1
-Content-Type: application/json
-
-{
     "message": "hello"
 }
 
 ###
 
 GET http://localhost:8000/publish
-
-###
-
-POST http://localhost:9000/subscribe/receive/topic
-Content-Type: application/json
-
-{
-    "data": {"message":"hello"}
-}
-
-###
-
-GET http://localhost:9000/subscribe/receive/async
-
-###
-
-GET http://localhost:9000/test2
